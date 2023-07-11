@@ -1,5 +1,7 @@
 from PySide2.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout, QWidget, QPushButton, QHBoxLayout, QLabel
 from PySide2.QtGui import QIcon, QFont
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 import sys
 import re
 import numpy as np
@@ -19,9 +21,14 @@ class Window(QMainWindow):
         self.setCentralWidget(self.centralWidget)
         self.layout = QVBoxLayout(self.centralWidget)
 
-        self.blankBlock = QWidget()
-        self.blankBlock.setStyleSheet("background-color: #eee;")
-        self.layout.addWidget(self.blankBlock, 90)
+
+        self.figure = Figure(figsize=(5, 4), dpi=100)
+        self.canvas = FigureCanvas(self.figure)
+        self.ax = self.figure.add_subplot(111)
+        self.ax.set_xlabel('X')
+        self.ax.set_ylabel('Y')
+
+        self.layout.addWidget(self.canvas, 90)
 
         self.horizontalLayout = QHBoxLayout()
         self.layout.addLayout(self.horizontalLayout)
@@ -64,13 +71,13 @@ class Window(QMainWindow):
         self.setIcon()
 
 
-#################################################################################################
+    #################################################################################################
 
     def setIcon(self):
         appIcon = QIcon("Icons\plotter.png")
         self.setWindowIcon(appIcon)
 
-#################################################################################################
+    #################################################################################################
 
     def printValues(self):
         minValue = self.minValueEdit.text()
@@ -78,9 +85,7 @@ class Window(QMainWindow):
         print("Min Value:", minValue)
         print("Max Value:", maxValue)
 
-
-################################################################################################
-
+    ################################################################################################
 
     def calcY(self, expression, numbers):
         expression = expression.replace(" ", "")
@@ -96,26 +101,20 @@ class Window(QMainWindow):
             results.append(result)
         return results
 
-
-################################################################################################
+    ################################################################################################
 
     def plotEquation(self):
         minX = int(self.minValueEdit.text())
         maxX = int(self.maxValueEdit.text())
 
-        print(minX)
-        print(maxX)
-
         xList = np.linspace(minX, maxX, num=1000)
         yList = self.calcY(str(self.equation.text()), xList)
 
-        plt.figure(num=0, dpi=120)
-        plt.plot(xList, yList)
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title(str(self.equation.text()))
-        plt.grid(True)
-        plt.show()
+        self.ax.clear()
+        self.ax.plot(xList, yList)
+        self.ax.set_title(str(self.equation.text()))
+        self.ax.grid(True)
+        self.canvas.draw()
 
 ##################################################################################################
 

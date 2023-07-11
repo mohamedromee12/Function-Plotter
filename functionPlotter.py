@@ -21,7 +21,6 @@ class Window(QMainWindow):
         self.setCentralWidget(self.centralWidget)
         self.layout = QVBoxLayout(self.centralWidget)
 
-
         self.figure = Figure(figsize=(5, 4), dpi=100)
         self.canvas = FigureCanvas(self.figure)
         self.ax = self.figure.add_subplot(111)
@@ -70,7 +69,6 @@ class Window(QMainWindow):
 
         self.setIcon()
 
-
     #################################################################################################
 
     def setIcon(self):
@@ -87,25 +85,28 @@ class Window(QMainWindow):
 
     ################################################################################################
 
-    def calcY(self, expression, numbers):
-        expression = expression.replace(" ", "")
-        pattern = r"([+-]?[0-9]*\.?[0-9]*)\*x\^([0-9]+)"
-        terms = re.findall(pattern, expression)
-        results = []
-        for x in numbers:
-            result = 0
-            for term in terms:
-                print(term)
-                coefficient, exponent = float(term[0]), int(term[1])
-                result += coefficient * (x ** exponent)
-            results.append(result)
-        return results
+    def calcY(self, expression, x):
+        # Todo: check for the supported operations and show error message for the user for invalid expression
+
+        expression = expression.lower()
+        toBeReplaced = {
+            '^': '**',
+        }
+        for old, new in toBeReplaced.items():
+            expression = expression.replace(old, new)
+
+        return (eval(expression))
 
     ################################################################################################
 
     def plotEquation(self):
         minX = int(self.minValueEdit.text())
         maxX = int(self.maxValueEdit.text())
+
+        # Todo: show error message for the user
+        if (maxX < minX):
+            print("Max x should be greater than Min x")
+            return
 
         xList = np.linspace(minX, maxX, num=1000)
         yList = self.calcY(str(self.equation.text()), xList)

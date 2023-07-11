@@ -91,6 +91,9 @@ class Window(QMainWindow):
         expression = expression.lower()
         toBeReplaced = {
             '^': '**',
+            'sin': 'np.sin',
+            'cos': 'np.cos',
+            'sqrt': 'np.sqrt',
         }
         for old, new in toBeReplaced.items():
             expression = expression.replace(old, new)

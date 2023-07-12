@@ -1,8 +1,8 @@
-from PySide2.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout, QWidget, QPushButton, QHBoxLayout, QLabel
+from PySide2.QtWidgets import  QMainWindow, QLineEdit, QVBoxLayout, QWidget, QPushButton, QHBoxLayout, QLabel
 from PySide2.QtGui import QIcon, QFont
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import sys
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -120,11 +120,5 @@ class Window(QMainWindow):
             self.canvas.draw()
        
 
-##################################################################################################
 
 
-myApp = QApplication(sys.argv)
-window = Window()
-window.show()
-myApp.exec_()
-sys.exit(0)

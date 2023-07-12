@@ -3,9 +3,10 @@ from PySide2.QtGui import QIcon, QFont
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import sys
-import re
 import numpy as np
 import matplotlib.pyplot as plt
+
+from helper_function import *
 
 
 class Window(QMainWindow):
@@ -81,74 +82,35 @@ class Window(QMainWindow):
     #################################################################################################
 
     def setIcon(self):
+        """
+        The function sets the icon for a window in a Python application.
+        """
         appIcon = QIcon("Icons\plotter.png")
         self.setWindowIcon(appIcon)
 
-    #################################################################################################
-
-    def printValues(self):
-        minValue = self.minValueEdit.text()
-        maxValue = self.maxValueEdit.text()
-        print("Min Value:", minValue)
-        print("Max Value:", maxValue)
-
     ################################################################################################
 
-    def calcY(self, expression, x):
-        # Todo: check for the supported operations and show error message for the user for invalid expression
-
-        expression = expression.lower()
-
-        allowed = [
-            'x',
-            '/',
-            '+',
-            '*',
-            '^',
-            '-',
-        ]
-
-        for word in re.findall('[a-zA-Z_]+', expression):
-            if word not in allowed:
-                print(
-                    f"Supported Operators: {', '.join(allowed)}"
-                )
-                self.error.setText(
-                    f"Supported Operators: {', '.join(allowed)}")
-                return
-
-        toBeReplaced = {
-            '^': '**',
-        }
-        for old, new in toBeReplaced.items():
-            expression = expression.replace(old, new)
-
-        self.error.setText("")
-        return (eval(expression))
-
-    ################################################################################################
-
-    def isNumber(self, number):
-        pattern = r'^[-+]?\d*\.?\d+$'
-        return re.match(pattern, number) is not None
-
-    ################################################################################################
     def plotEquation(self):
-        if (self.isNumber(self.minValueEdit.text()) == False or self.isNumber(self.maxValueEdit.text()) == False):
+        """
+        The function plots an equation on a graph based on user input, with error handling for invalid
+        inputs.
+        :return: The function does not explicitly return anything.
+        """
+
+        if (isNumber(self.minValueEdit.text()) == False or isNumber(self.maxValueEdit.text()) == False):
             self.error.setText("Max x and Min x should be numbers only")
             return
 
         minX = int(self.minValueEdit.text())
         maxX = int(self.maxValueEdit.text())
 
-        # Todo: show error message for the user
+        
         if (maxX < minX):
-            print("Max x should be greater than Min x")
             self.error.setText("Max x should be greater than Min x")
             return
 
         xList = np.linspace(minX, maxX, num=1000)
-        yList = self.calcY(str(self.equation.text()), xList)
+        yList = calcY(str(self.equation.text()), xList, self.error)
 
         if self.error.text() == "":
             self.ax.clear()
@@ -156,8 +118,7 @@ class Window(QMainWindow):
             self.ax.set_title(str(self.equation.text()))
             self.ax.grid(True)
             self.canvas.draw()
-        else:
-            print("There is an error")
+       
 
 ##################################################################################################
 

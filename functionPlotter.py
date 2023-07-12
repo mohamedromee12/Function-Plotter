@@ -32,9 +32,18 @@ class Window(QMainWindow):
         self.horizontalLayout = QHBoxLayout()
         self.layout.addLayout(self.horizontalLayout)
 
+        self.equationWidget = QWidget()
+        self.equationLayout = QVBoxLayout(self.equationWidget)
         self.equation = QLineEdit()
         self.equation.setFont(QFont("Arial", 13))
-        self.horizontalLayout.addWidget(self.equation)
+        self.error = QLabel("", self)
+        self.error.setStyleSheet(
+            "color: red; font-weight: bold; font-size: 14;")
+        self.equationLabel = QLabel("Equation:", self)
+        self.equationLayout.addWidget(self.equationLabel)
+        self.equationLayout.addWidget(self.equation)
+        self.equationLayout.addWidget(self.error)
+        self.horizontalLayout.addWidget(self.equationWidget)
 
         self.minWidget = QWidget()
         self.minLayout = QVBoxLayout(self.minWidget)
@@ -89,36 +98,66 @@ class Window(QMainWindow):
         # Todo: check for the supported operations and show error message for the user for invalid expression
 
         expression = expression.lower()
+
+        allowed = [
+            'x',
+            '/',
+            '+',
+            '*',
+            '^',
+            '-',
+        ]
+
+        for word in re.findall('[a-zA-Z_]+', expression):
+            if word not in allowed:
+                print(
+                    f"Supported Operators: {', '.join(allowed)}"
+                )
+                self.error.setText(
+                    f"Supported Operators: {', '.join(allowed)}")
+                return
+
         toBeReplaced = {
             '^': '**',
-            'sin': 'np.sin',
-            'cos': 'np.cos',
-            'sqrt': 'np.sqrt',
         }
         for old, new in toBeReplaced.items():
             expression = expression.replace(old, new)
 
+        self.error.setText("")
         return (eval(expression))
 
     ################################################################################################
 
+    def isNumber(self, number):
+        pattern = r'^[-+]?\d*\.?\d+$'
+        return re.match(pattern, number) is not None
+
+    ################################################################################################
     def plotEquation(self):
+        if (self.isNumber(self.minValueEdit.text()) == False or self.isNumber(self.maxValueEdit.text()) == False):
+            self.error.setText("Max x and Min x should be numbers only")
+            return
+
         minX = int(self.minValueEdit.text())
         maxX = int(self.maxValueEdit.text())
 
         # Todo: show error message for the user
         if (maxX < minX):
             print("Max x should be greater than Min x")
+            self.error.setText("Max x should be greater than Min x")
             return
 
         xList = np.linspace(minX, maxX, num=1000)
         yList = self.calcY(str(self.equation.text()), xList)
 
-        self.ax.clear()
-        self.ax.plot(xList, yList)
-        self.ax.set_title(str(self.equation.text()))
-        self.ax.grid(True)
-        self.canvas.draw()
+        if self.error.text() == "":
+            self.ax.clear()
+            self.ax.plot(xList, yList)
+            self.ax.set_title(str(self.equation.text()))
+            self.ax.grid(True)
+            self.canvas.draw()
+        else:
+            print("There is an error")
 
 ##################################################################################################
 

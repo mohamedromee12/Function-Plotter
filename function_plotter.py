@@ -97,8 +97,17 @@ class Window(QMainWindow):
         :return: The function does not explicitly return anything.
         """
 
+        if (len(self.equation.text()) == 0 or len(self.minValueEdit.text()) == 0 or len(self.maxValueEdit.text()) == 0):
+            self.error.setText("All input fields should be filled")
+            self.ax.clear()
+            self.canvas.draw()
+            return
+
+
         if (isNumber(self.minValueEdit.text()) == False or isNumber(self.maxValueEdit.text()) == False):
             self.error.setText("Max x and Min x should be numbers only")
+            self.ax.clear()
+            self.canvas.draw()
             return
 
         minX = int(self.minValueEdit.text())
@@ -107,6 +116,8 @@ class Window(QMainWindow):
         
         if (maxX < minX):
             self.error.setText("Max x should be greater than Min x")
+            self.ax.clear()
+            self.canvas.draw()
             return
 
         xList = np.linspace(minX, maxX, num=1000)
@@ -117,6 +128,9 @@ class Window(QMainWindow):
             self.ax.plot(xList, yList)
             self.ax.set_title(str(self.equation.text()))
             self.ax.grid(True)
+            self.canvas.draw()
+        else:
+            self.ax.clear()    
             self.canvas.draw()
        
 

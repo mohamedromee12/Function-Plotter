@@ -21,11 +21,11 @@ def calcY(expression, x, error=None):
     with support for basic arithmetic operations and exponentiation.
 
     :param expression: The expression parameter is a string that represents a mathematical expression.
-    It can contain variables, operators, and numbers
-    :param x: The value of x that you want to evaluate the expression at
+    It can contain variables, operators, and numbers.
+    :param x: The value of x that you want to evaluate the expression at.
     :param error: The `error` parameter is a widget or object that is used to display any error messages
     or notifications to the user. It could be a label, text box, or any other UI element that can
-    display text
+    display text.
     :return: The function `calcY` returns the result of evaluating the expression after performing some
     operations and replacements.
     """
@@ -39,13 +39,19 @@ def calcY(expression, x, error=None):
         '-',
     ]
 
+    # Search for any unsupported operators
     for word in re.findall('[a-zA-Z_]+', expression):
         if word not in allowed:
             if error is not None:
-                error.setText(
-                    f"Supported Operators: {', '.join(allowed)}")
+                error.setText(f"Supported Operators: {', '.join(allowed)}")
             return False
 
+    
+    # Handle the case of plotting y = constant
+    expression = re.sub(r'\b(\d+(\.\d*)?|\.\d+)\b', r'\1*x**0', expression)
+
+
+    # Replace ^ with ** for eval function
     toBeReplaced = {
         '^': '**',
     }
